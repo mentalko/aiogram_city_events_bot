@@ -1,16 +1,21 @@
 from typing import Dict, List, Union, Optional
 from unicodedata import category
-from data.config import DB_HOST, DB_NAME
+from data.config import DB_HOST, DB_NAME, DB_USER, DB_PASS
 from utils.models.user import User
 
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-uri = "mongodb://localhost/" + \
-        "?retryWrites=false".format(DB_HOST=DB_HOST, DB_NAME=DB_NAME)
+
+if DB_USER:
+    url = "mongodb+srv://{}:{}@{}/{}".format(DB_USER, DB_PASS, DB_HOST, DB_NAME)   
+else:
+    url = "mongodb://localhost/" + \
+            "?retryWrites=false".format(DB_HOST=DB_HOST, DB_NAME=DB_NAME)
+
 
 print('Connection to MongoDB...')
-client = AsyncIOMotorClient(uri)
+client = AsyncIOMotorClient(url)
 db = client.get_database(DB_NAME)
 # print(db)
 print('Connection success!')
@@ -50,7 +55,7 @@ async def do_delete_one(collection_name: str, document: Union[User, Dict]):
 
 
 async def check_db_exists(*args, **kwargs):
-    collist = await db.list_collection_names()
+    # collist = await db.list_collection_names()
     # categories = await db_find()
     
-    print('DB CONECTED ', collist)
+    print('DB CONECTED ')
