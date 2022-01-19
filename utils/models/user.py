@@ -7,7 +7,4 @@ class User(Dict):
     """
     id: int
     username: str
-    is_bot: bool
-    language_code: str
     events: List[str]
-    role: str

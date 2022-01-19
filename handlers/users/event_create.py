@@ -4,10 +4,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 
-from data.messages import LIST_TEMPLATE_MSG
 from loader import dp, bot
-from keyboards.default.default_keyboards import main_kb, cancel_kb, accept_kb
+from keyboards.default.default_keyboards import main_kb, cancel_kb
 from data.config import MODERATE_CHAT
+from handlers.groups.event_moderate import send_moderate_msg
 import utils.db_api.mongo_db as db
 
 class FSMEvent(StatesGroup):
@@ -61,22 +61,18 @@ async def set_place(message: types.Message, state: FSMContext):
 async def set_description(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["description"] = message.text
-    async with state.proxy() as data:
-        # await message.answer(str(data))
-        print(MODERATE_CHAT)
         
+    async with state.proxy() as data:
         document = { 
             "title": data["title"], 
             "date": data["date"],
             "place": data["place"], 
             "description": data["description"],
-            "is_active": 'False',
+            "is_active": False,
             }
         
         await db.do_insert_one('events', document)
-        msg = LIST_TEMPLATE_MSG.format(document['title'], document['date'], document['place'], document['description'])
-        await bot.send_message(chat_id=MODERATE_CHAT, text=msg, reply_markup=accept_kb)
-        
+        await send_moderate_msg(document)
         
     await message.answer(f"Отлично, отправленно на модерацию:", reply_markup=main_kb)
     await state.finish()

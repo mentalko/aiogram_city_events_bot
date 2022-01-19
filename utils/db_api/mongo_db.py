@@ -12,7 +12,7 @@ uri = "mongodb://localhost/" + \
 print('Connection to MongoDB...')
 client = AsyncIOMotorClient(uri)
 db = client.get_database(DB_NAME)
-print(db)
+# print(db)
 print('Connection success!')
 
 
@@ -39,6 +39,14 @@ async def do_find(collection_name: str, document: Union[User, Dict], sort_param=
     async for item in cursor:
         result.append(item)
     return result
+
+async def do_update_one(collection_name: str, document: Union[User, Dict], set_document: Dict):
+    collection = db.get_collection(collection_name)
+    await collection.update_one(document, set_document)
+    
+async def do_delete_one(collection_name: str, document: Union[User, Dict]):
+    collection = db.get_collection(collection_name)
+    await collection.delete_one(document)
 
 
 async def check_db_exists(*args, **kwargs):
